@@ -1,4 +1,4 @@
-package w5t4_Dozent;
+package w5t4;
 
 import java.awt.Color;
 import java.awt.Font;

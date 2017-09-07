@@ -1,10 +1,7 @@
-package w5t4_Dozent;
+package w5t3;
 
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,10 +9,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,15 +18,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Utilities;
 
 public class FrameDialog extends JFrame implements ActionListener, ItemListener, WindowListener, DocumentListener
 {
@@ -43,7 +33,7 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 
 	private JCheckBox checkLineWrap, checkWordWrap;
 
-	private JButton btnBeenden, btnDialog, btnDatei, btnSuchenUndErsetzen, btnDrucken;
+	private JButton btnBeenden, btnDialog, btnDatei, btnSuchenUndErsetzen;
 	
 	//private File fcFile; 
 	
@@ -118,13 +108,13 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 
 		btnDatei = new JButton("Datei öffnen...");
 		btnDatei.setFont(btnDatei.getFont().deriveFont(Font.PLAIN, 11F));
-		btnDatei.setBounds(595, 195, 150, 30);
+		btnDatei.setBounds(595, 230, 150, 30);
 		btnDatei.addActionListener(this);
 		this.add(btnDatei);
 
 		btnDialog = new JButton("Dialog anzeigen");
 		btnDialog.setFont(btnDialog.getFont().deriveFont(Font.PLAIN, 11F));
-		btnDialog.setBounds(595, 230, 150, 30);
+		btnDialog.setBounds(595, 265, 150, 30);
 		btnDialog.addActionListener(this);
 		this.add(btnDialog);
 
@@ -136,18 +126,9 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 		btnSuchenUndErsetzen.setIcon(icon);
 				
 		btnSuchenUndErsetzen.setFont(btnSuchenUndErsetzen.getFont().deriveFont(Font.PLAIN, 11F));
-		btnSuchenUndErsetzen.setBounds(595, 265, 150, 30);
+		btnSuchenUndErsetzen.setBounds(595, 300, 150, 30);
 		btnSuchenUndErsetzen.addActionListener(this);
 		this.add(btnSuchenUndErsetzen);
-		
-		// Drucken Button mit Icon
-		icon = new ImageIcon(this.getClass().getResource("/images/Printer.png"));
-		
-		btnDrucken = new JButton("Drucken", icon);
-		btnDrucken.setFont(btnDrucken.getFont().deriveFont(Font.PLAIN, 11F));
-		btnDrucken.setBounds(595, 300, 150, 30);
-		btnDrucken.addActionListener(this);
-		this.add(btnDrucken);
 		
 		btnBeenden = new JButton("Beenden");
 		btnBeenden.setFont(btnBeenden.getFont().deriveFont(Font.PLAIN, 11F));
@@ -682,72 +663,6 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 	}
 	
 	
-	private void druckeText()
-	{
-		// Ausdruck der TextArea mit der Methode print() der TextArea.
-		// druckeText(textArea);
-		
-		
-		PrinterJob printJob = PrinterJob.getPrinterJob();
-		
-		if (printJob.printDialog())
-		{
-			
-			PageFormat pageFormat = printJob.pageDialog(printJob.defaultPage());
-			
-			printJob.setPrintable(new Drucken(textArea), pageFormat);
-			
-			
-			try
-			{
-				printJob.print();
-			}
-			catch (PrinterException e)
-			{
-				JOptionPane.showMessageDialog(this, e.getMessage(), "Fehler bei der Druckausgabe", JOptionPane.ERROR_MESSAGE);
-			}
-			
-		}
-		
-		
-		
-		
-		
-		
-		
-	}
-	
-	
-	private void druckeText(JTextArea textArea)
-	{
-		
-		boolean complete = false;
-		
-		
-		try
-		{
-			complete = textArea.print();
-			if (complete)
-			{
-				// Anzeige einer Meldung, dass der Ausdruck erfolgreich war.
-			}
-			else
-			{
-				// Anzeige einer Meldung für den Abbruch des Druckvorgangs. 
-			}
-			
-		}
-		catch (PrinterException e)
-		{
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Fehler bei der Druckausgabe", JOptionPane.ERROR_MESSAGE);
-		}
-		
-		
-		
-		
-	}
-	
-	
 	public void showFrame()
 	{
 		initFrame();
@@ -761,224 +676,6 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 
 	}
 
-	
-	private class Drucken implements Printable
-	{
-
-		private JTextArea textArea;
-		
-		private int pageHeight, pageWidth;
-		private String[] lines;
-		
-		private FontMetrics fm;
-		private boolean ignoreTextWidthError;
-		
-		// Benutzerdefinierte Button Texte
-		private String[] options = { "Ja", "Nein" };
-				
-		public Drucken(JTextArea textArea)
-		{
-			this.textArea = textArea;
-			
-			//lines = textArea.getText().split("\n");
-			
-			try
-			{
-				lines = convertToStringArray(textArea);
-			}
-			catch (BadLocationException ex)
-			{
-				JOptionPane.showMessageDialog(null, ex.getMessage(), "Fehler bei der Druckausgabe", JOptionPane.ERROR_MESSAGE);
-			}
-			
-			
-			
-			// Abmessungen der verwendeten Schriftart abfragen.
-			fm = textArea.getFontMetrics(textArea.getFont());
-			
-			
-		}
-		
-		
-		private String[] convertToStringArray(JTextArea textArea) throws BadLocationException
-		{
-			
-			// Zuerst eine dynamische Datenstruktur verwenden, da die Anzahl der
-			// Zeilen nicht bekannt ist.
-			ArrayList<String> arrLines = new ArrayList<>();
-						
-			String[] lines;
-			int lineEnd = 0;
-			int lineStart = 0;
-			int zeile = 0;
-		
-			
-			for (int i = 0; i < textArea.getText().length(); i++)
-			{
-				
-				// Indexposition für Zeilenende ab der aktuellen Indexposition ermitteln 
-				lineEnd = Utilities.getRowEnd(textArea, i);
-				
-				// Indexposition für den Beginn der Zeile ermitteln.
-				lineStart = Utilities.getRowStart(textArea, i + 1);
-				
-				// Laufvariable i auf das Zeilenende setzen
-				i = lineEnd;
-				
-				// Wenn die Indexposition für das Zeilenende grösser ist als der
-				// Zeilenanfang bedeuted das, dass eine Textzeile gefunden
-				// wurde.
-				if (lineEnd > lineStart)
-				{
-					// Wenn die Indexposition für Zeilenende kleiner ist als die
-					// Gesamtlänge des Textes, Zeile in das Array übertragen.
-					if (lineEnd < textArea.getText().length())
-					{
-						arrLines.add(textArea.getText().substring(lineStart, lineEnd + 1));
-					}
-					else
-					{
-						// Textzeile nur bis zu Ende des Textes in das Array
-						// übertragen.
-						arrLines.add(textArea.getText().substring(lineStart));
-
-					}
-				}
-				// lineEnd ist identisch mit lineStart = Leerzeile
-				else
-				{
-					arrLines.add("");
-				}
-				
-			}
-			
-			// Übernahme aller Elemente der Arraylist in ein Array vom Typ String, welches
-			// dann von der Methode print() zum Drucken verwendet wird.
-			
-			// Erstellen eines Arrays mit der Anzahl der Elemente der ArrayList,
-			lines = new String[arrLines.size()];
-			
-			// Übernahme der Elemente in das String-Array
-			lines = arrLines.toArray(lines);
-				
-			return lines;
-		}
-		
-		
-		
-		// Die Methode print(Graphics g, PageFormat pageFormat, int pageIndex) wird über die Methode
-		// print() der Klasse 'PrintJob' so lange aufgerufen, bis NO_SUCH_PAGE zurückgegeben wird.
-		// Die Variable pageIndex beginnt bei 0 und wird vor jedem Aufruf um 1
-		// inkrementiert.
-		
-		@Override
-		public int print(Graphics g, PageFormat pageFormat, int pageIndex) throws PrinterException
-		{
-			
-			int retValue = Printable.NO_SUCH_PAGE;
-			
-			
-			// Zeilenabstand definieren
-			double lineSpacing = 1.2;
-			
-			// Gleiche Schriftart win in TextArea verwenden;
-			g.setFont(textArea.getFont());
-			
-			// Beginn der Druckausgabe auf die linke obere Ecke (x, y) des
-			// druckbaren Bereichs setzen.
-			Point drawPoint = new Point((int)pageFormat.getImageableX(), (int)pageFormat.getImageableY());
-			
-			// Druckbaren Bereich der Seite ermitteln.
-			pageWidth = (int)pageFormat.getImageableWidth();
-			pageHeight = (int)pageFormat.getImageableHeight();
-			
-			
-			// Berechnung der Zeilen pro Seite unter Berücksichtigung von etwas
-			// vertikalem Abstand zwischen den Zeilen (2/10 der Zeile).
-			
-			int zeilenProSeite = (int)(pageHeight / (lineSpacing * g.getFont().getSize()));
-			
-			// Ermitteln der Anzahl von Zeilen über das String-Array
-			int anzahlZeilen = lines.length;
-			
-			// Berechnung der Anzahl der Seiten (0 basierend)
-			// Math.ceil() gibt den kleinsten ganzzahligen Wert zurück, der
-			// größer oder gleich der angegebenen Gleitkommazahl mit doppelter
-			// Genauigkeit ist.
-			int anzahlSeiten = (int)Math.ceil(((double)anzahlZeilen / zeilenProSeite)) - 1;
-			
-			if (pageIndex <= anzahlSeiten)
-			{
-				// Ermittlung der Zeilen, die für die jeweilige Seite aus dem
-				// String-Array gedruckt werden müssen.
-				// Berechnungsgrundlage: pageIndex, zeilenProSeite, anzahlZeilen
-				// Erste zu drucken Zeile = aktueller Seitenindex * Anzahl Zeilen pro Seite
-				int zeileVon = pageIndex * zeilenProSeite;
-				
-				// Die letzte zu druckende Zeile dieser Seite wird
-				// folgendermassen ermittelt.
-				// Wenn die Startzeile + Zeilen pro Seite kleiner ist als die
-				// Gesamtanzahl der zu druckenden Zeilen, gibt es entweder nur
-				// eine unvollständige Seite zu drucken, oder es wurde die letzte
-				// angefangene Seite des Ausdrucks erreicht.
-				// Ansonsten wird eine weitere vollständige Seite gedruckt.
-				int zeileBis = (zeileVon + zeilenProSeite < anzahlZeilen) ? (zeileVon + zeilenProSeite) : anzahlZeilen;
-				
-				if (!ignoreTextWidthError)
-				{
-					
-					int dlgValue = JOptionPane.showOptionDialog(FrameDialog.this, "Der Text liegt außerhalb des druckbaren Bereichs.\nDrucken fortsetzen",
-							"Achtung", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-
-					// Falls die Druckausgabe abgebrochen wurde.
-					if (dlgValue == JOptionPane.NO_OPTION)
-						return Printable.NO_SUCH_PAGE;
-					
-					ignoreTextWidthError = true;
-				}
-				
-				
-				for (int i = zeileVon; i < zeileBis; i++)
-				{	
-					g.drawString(lines[i], drawPoint.x,  drawPoint.y + (int) ((i + 1 - zeileVon) * lineSpacing * g.getFont().getSize()));
-							
-				}
-				
-				retValue = Printable.PAGE_EXISTS;
-			
-			}
-			
-			
-			return retValue;
-		}
-		
-		private boolean printOutFitsOnPage(String[] lines, int pageWidth)
-		{
-			int textWidth;
-			boolean retValue = true;
-			
-			for (int i = 0; i < lines.length; i++)
-			{
-				
-				textWidth = fm.stringWidth(lines[i]);
-				if (textWidth > pageWidth)
-				{
-					retValue = false;
-					break;
-				}
-			}
-			
-			return retValue;
-			
-		}
-		
-		
-		
-		
-	}
-	
-	
-	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -999,8 +696,6 @@ public class FrameDialog extends JFrame implements ActionListener, ItemListener,
 		{
 			anzeigeSuchenUndErsetzen();
 		}
-		else if (e.getSource() == btnDrucken)
-			druckeText();
 
 
 	}

@@ -1,4 +1,4 @@
-package w5t3_Dozent;
+package w5t4;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
