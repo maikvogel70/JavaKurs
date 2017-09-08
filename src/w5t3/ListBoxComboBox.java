@@ -1,8 +1,11 @@
 package w5t3;
 
+import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -21,10 +24,14 @@ import util.ListItem;
 
 public class ListBoxComboBox extends JFrame implements ListSelectionListener, ItemListener {
 
+	private static final long serialVersionUID = 5120098636498907495L;
+
 	private JList<ListItem<Integer, String>> listBox, msListBox, typeListBox;
 	private JList<ListItem<Float, String>> sizeListBox;
+
 	private DefaultListModel<ListItem<Float, String>> sizeListBoxModel;
 	private DefaultListModel<ListItem<Integer, String>> listBoxModel, msListBoxModel, typeListBoxModel;
+
 	private JScrollPane listBoxScrollPane, sizeListBoxScrollPane, typeListBoxScrollPane, msListBoxScrollPane;
 
 	private JComboBox<ListItem<Integer, String>> cboFont;
@@ -34,7 +41,9 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	private JTextArea previewText;
 
-	public ListBoxComboBox() {
+	private static ListBoxComboBox INSTANCE;
+
+	private ListBoxComboBox() {
 		initializeComponents();
 	}
 
@@ -86,6 +95,7 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		previewText.setWrapStyleWord(true);
 		previewText.setLineWrap(true);
 		previewText.setEditable(false);
+		previewText.setMargin(new Insets(5, 5, 5, 5));
 		previewText.setBackground(this.getBackground());
 
 		typeListBoxScrollPane = new JScrollPane(previewText);
@@ -123,6 +133,30 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	}
 
+	private void setDefaultType() {
+		int style = previewText.getFont().getStyle();
+		Enumeration<ListItem<Integer, String>> elements = typeListBoxModel.elements();
+		int c = 0;
+		while (elements.hasMoreElements()) {
+			if (elements.nextElement().getValueMember() == style) {
+				typeListBox.setSelectedIndex(c);
+			}
+			c++;
+		}
+	}
+
+	private void setDefaultSize() {
+		int size = previewText.getFont().getSize();
+		Enumeration<ListItem<Float, String>> elements = sizeListBoxModel.elements();
+		int c = 0;
+		while (elements.hasMoreElements()) {
+			if (elements.nextElement().getDisplayMember().equals(String.valueOf(size))) {
+				sizeListBox.setSelectedIndex(c);
+			}
+			c++;
+		}
+	}
+
 	private void initFrame() {
 		// In der Mitte des Desktops anzeigen
 		this.setLocationRelativeTo(null);
@@ -145,6 +179,8 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	public void showFrame() {
 		initFrame();
+		setDefaultSize();
+		setDefaultType();
 		this.setVisible(true);
 	}
 
@@ -186,15 +222,16 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		}
 	}
 
-	private void showValue(ListItem<Integer, String> listItem) {
-		System.out.println(listItem.getValueMember() + " - " + listItem.getDisplayMember());
+	private void setNewValue(ListItem<Integer, String> listItem) {
+		previewText.setFont(new Font(listItem.getDisplayMember(), previewText.getFont().getStyle(),
+				previewText.getFont().getSize()));
 	}
 
 	private void showMultiSelectItems() {
 		System.out.println();
 
 		for (ListItem<Integer, String> li : msListBox.getSelectedValuesList()) {
-			showValue(li);
+			setNewValue(li);
 		}
 
 		System.out.println();
@@ -215,7 +252,7 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 		if (e.getSource() instanceof JList && !e.getValueIsAdjusting()) {
 			if (e.getSource() == listBox) {
-				showValue(listBox.getSelectedValue());
+				setNewValue(listBox.getSelectedValue());
 			} else if (e.getSource() == msListBox) {
 				showMultiSelectItems();
 			} else if (e.getSource() == sizeListBox) {
@@ -235,6 +272,7 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		previewText.setFont(previewText.getFont().deriveFont(selectedValue.getValueMember()));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		ListItem<Integer, String> listItem;
@@ -242,9 +280,19 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		if (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.SELECTED) {
 			if (e.getSource() == cboFont) {
 				listItem = (ListItem<Integer, String>) cboFont.getSelectedItem();
-				showValue(listItem);
+				setNewValue(listItem);
 			}
 		}
+	}
+
+	/**
+	 * @return the iNSTANCE
+	 */
+	public static ListBoxComboBox getINSTANCE() {
+		if (INSTANCE == null) {
+			INSTANCE = new ListBoxComboBox();
+		}
+		return INSTANCE;
 	}
 
 }
