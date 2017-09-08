@@ -26,13 +26,13 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	private static final long serialVersionUID = 5120098636498907495L;
 
-	private JList<ListItem<Integer, String>> listBox, msListBox, typeListBox;
+	private JList<ListItem<Integer, String>> listBox, msListBox, styleListBox;
 	private JList<ListItem<Float, String>> sizeListBox;
 
 	private DefaultListModel<ListItem<Float, String>> sizeListBoxModel;
-	private DefaultListModel<ListItem<Integer, String>> listBoxModel, msListBoxModel, typeListBoxModel;
+	private DefaultListModel<ListItem<Integer, String>> listBoxModel, msListBoxModel, styleListBoxModel;
 
-	private JScrollPane listBoxScrollPane, sizeListBoxScrollPane, typeListBoxScrollPane, msListBoxScrollPane;
+	private JScrollPane listBoxScrollPane, sizeListBoxScrollPane, styleListBoxScrollPane, msListBoxScrollPane;
 
 	private JComboBox<ListItem<Integer, String>> cboFont;
 	private DefaultComboBoxModel<ListItem<Integer, String>> cboFontModel;
@@ -63,23 +63,25 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		// 1. Zuerst das Datenmodell erstellen
 		listBoxModel = new DefaultListModel<>();
 		sizeListBoxModel = new DefaultListModel<>();
-		typeListBoxModel = new DefaultListModel<>();
+		styleListBoxModel = new DefaultListModel<>();
 
 		// 2. Die Listbox erstellen und das Datenmodell als Referenz übergebn
 		listBox = new JList<>(listBoxModel);
 		listBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listBox.addListSelectionListener(this);
 
+		// Aufgabe 16
 		sizeListBox = new JList<>(sizeListBoxModel);
 		sizeListBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		sizeListBox.addListSelectionListener(this);
 
-		typeListBox = new JList<>(typeListBoxModel);
-		typeListBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		typeListBox.addListSelectionListener(this);
-		typeListBox.setBounds(360, 50, 100, 100);
-		typeListBox.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		this.add(typeListBox);
+		// Aufgabe 16
+		styleListBox = new JList<>(styleListBoxModel);
+		styleListBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		styleListBox.addListSelectionListener(this);
+		styleListBox.setBounds(360, 50, 100, 100);
+		styleListBox.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		this.add(styleListBox);
 
 		// 3. Um die Listbox blättern zu können, eine ScrollPane erstellen und die
 		// ListBox als Referenz übergeben.
@@ -87,10 +89,12 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		listBoxScrollPane.setBounds(10, 10, 280, 140);
 		this.add(listBoxScrollPane);
 
+		// Aufgabe 16
 		sizeListBoxScrollPane = new JScrollPane(sizeListBox);
 		sizeListBoxScrollPane.setBounds(300, 50, 50, 100);
 		this.add(sizeListBoxScrollPane);
 
+		// Aufgabe 16
 		previewText = new JTextArea("Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. 1234567890");
 		previewText.setWrapStyleWord(true);
 		previewText.setLineWrap(true);
@@ -98,9 +102,10 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		previewText.setMargin(new Insets(5, 5, 5, 5));
 		previewText.setBackground(this.getBackground());
 
-		typeListBoxScrollPane = new JScrollPane(previewText);
-		typeListBoxScrollPane.setBounds(300, 180, 160, 100);
-		this.add(typeListBoxScrollPane);
+		// Aufgabe 16
+		styleListBoxScrollPane = new JScrollPane(previewText);
+		styleListBoxScrollPane.setBounds(10, 300, 450, 100);
+		this.add(styleListBoxScrollPane);
 
 		// Listbox mit Mehrfach-Selektion
 
@@ -133,28 +138,35 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	}
 
-	private void setDefaultType() {
+	// Aufgabe 16
+	private void setDefaultStyle() {
 		int style = previewText.getFont().getStyle();
-		Enumeration<ListItem<Integer, String>> elements = typeListBoxModel.elements();
-		int c = 0;
+		Enumeration<ListItem<Integer, String>> elements = styleListBoxModel.elements();
+		int i = 0;
 		while (elements.hasMoreElements()) {
 			if (elements.nextElement().getValueMember() == style) {
-				typeListBox.setSelectedIndex(c);
+				styleListBox.setSelectedIndex(i);
 			}
-			c++;
+			i++;
 		}
 	}
 
+	// Aufgabe 16
 	private void setDefaultSize() {
 		int size = previewText.getFont().getSize();
 		Enumeration<ListItem<Float, String>> elements = sizeListBoxModel.elements();
-		int c = 0;
+		int i = 0;
 		while (elements.hasMoreElements()) {
 			if (elements.nextElement().getDisplayMember().equals(String.valueOf(size))) {
-				sizeListBox.setSelectedIndex(c);
+				sizeListBox.setSelectedIndex(i);
 			}
-			c++;
+			i++;
 		}
+	}
+
+	private void setDefaultFontFamily() {
+		ListItem<Integer, String> listItem = (ListItem<Integer, String>) cboFont.getSelectedItem();
+		previewText.setFont(new Font(listItem.toString(), listItem.getValueMember(), listItem.getValueMember()));
 	}
 
 	private void initFrame() {
@@ -166,7 +178,7 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 		populateFontComboBox();
 		populateSizeList();
-		populateTypeList();
+		populateStyleList();
 
 		// Programmatische Auswahl eines ListBox Eintrags
 		listBox.setSelectedIndex(8);
@@ -179,8 +191,10 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	public void showFrame() {
 		initFrame();
+		// Aufgabe 16
 		setDefaultSize();
-		setDefaultType();
+		setDefaultStyle();
+		setDefaultFontFamily();
 		this.setVisible(true);
 	}
 
@@ -198,16 +212,14 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 
 	private void populateFontComboBox() {
 		int i = 0;
-
 		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
-
 		fontFamilies = e.getAvailableFontFamilyNames();
-
 		for (String ff : fontFamilies) {
 			cboFontModel.addElement(new ListItem<Integer, String>(++i, ff));
 		}
 	}
 
+	// Aufgabe 16
 	private void populateSizeList() {
 		int[] sizes = new int[] { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
 		for (int i = 0; i < sizes.length; i++) {
@@ -215,10 +227,11 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 		}
 	}
 
-	private void populateTypeList() {
-		String[] types = new String[] { "Standard", "Fett", "Kursiv", "Fettkusiv" };
-		for (int i = 0; i < types.length; i++) {
-			typeListBoxModel.addElement(new ListItem<Integer, String>(i, types[i]));
+	// Aufgabe 16
+	private void populateStyleList() {
+		String[] style = new String[] { "Standard", "Fett", "Kursiv", "Fettkusiv" };
+		for (int i = 0; i < style.length; i++) {
+			styleListBoxModel.addElement(new ListItem<Integer, String>(i, style[i]));
 		}
 	}
 
@@ -228,13 +241,9 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 	}
 
 	private void showMultiSelectItems() {
-		System.out.println();
-
 		for (ListItem<Integer, String> li : msListBox.getSelectedValuesList()) {
 			setNewValue(li);
 		}
-
-		System.out.println();
 	}
 
 	public static void main(String[] args) {
@@ -257,17 +266,19 @@ public class ListBoxComboBox extends JFrame implements ListSelectionListener, It
 				showMultiSelectItems();
 			} else if (e.getSource() == sizeListBox) {
 				setSelectedSize(sizeListBox.getSelectedValue());
-			} else if (e.getSource() == typeListBox) {
-				setSelectedType(typeListBox.getSelectedValue());
+			} else if (e.getSource() == styleListBox) {
+				setSelectedStyle(styleListBox.getSelectedValue());
 			}
 		}
 
 	}
 
-	private void setSelectedType(ListItem<Integer, String> selectedValue) {
+	// Aufgabe 16
+	private void setSelectedStyle(ListItem<Integer, String> selectedValue) {
 		previewText.setFont(previewText.getFont().deriveFont(selectedValue.getValueMember()));
 	}
 
+	// Aufgabe 16
 	private void setSelectedSize(ListItem<Float, String> selectedValue) {
 		previewText.setFont(previewText.getFont().deriveFont(selectedValue.getValueMember()));
 	}
